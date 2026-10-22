@@ -128,6 +128,9 @@ button{font:inherit;cursor:pointer}
 .seg button{border:none;background:var(--surface);color:var(--muted);padding:7px 12px;font:inherit;font-size:.85rem}
 .seg button[aria-pressed="true"]{background:var(--pistachio);color:var(--cocoa)}
 canvas{max-width:100%;height:auto;border-radius:14px;border:1px solid var(--line);display:block}
+#cv{width:auto;max-width:100%;max-height:340px;margin-inline:auto;cursor:zoom-in;box-shadow:0 6px 18px rgba(43,25,19,.12)}
+.cvzoom{position:fixed;inset:0;z-index:20;background:rgba(20,12,9,.86);display:flex;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+.cvzoom img{max-width:100%;max-height:100%;border-radius:12px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:20;background:var(--cocoa);color:var(--cream);border-radius:12px;padding:10px 16px;font-size:.9rem;max-width:calc(100% - 32px)}
 .confirm{border:1px solid var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--surface));border-radius:12px;padding:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 textarea{min-height:150px}
@@ -189,7 +192,7 @@ const TX={
   qH:'عرض سعر لزبون',qCust:'اسم الزبون',qCustPh:'مثال: أم خالد',qAdd:'+ منتج آخر',qDel:'رسوم التوصيل',qDisc:'خصم %',qNote:'ملاحظة للزبون',qNotePh:'مثال: التسليم الخميس 5 مساءً',
   qSub:'المجموع',qDiscL:'الخصم',qDelL:'التوصيل',qTotal:'الإجمالي للزبون',qProfit:'ربحك من الطلب (لا يظهر للزبون)',qMsgH:'الرسالة الجاهزة',qCopy:'نسخ الرسالة',qPaste:'الصقها في واتساب أو إنستغرام.',
   qTitle:c=>`عرض سعر${c?' لـ '+c:''}`,qTotalTxt:'الإجمالي',qDiscTxt:p=>`الخصم ${p}%`,qDemo:'(أُعدّ بالنسخة التجريبية من ميزارا)',copied:'نُسخ النص.',copyManual:'حدّد النص وانسخه يدوياً.',
-  cH:'قائمة الأسعار',cSub:'صورة جاهزة لحالة واتساب أو ستوري إنستغرام، تتحدّث مع أسعارك تلقائياً.',cStyles:{cocoa:'كاكاو',pistachio:'فستقي',cream:'كريمي'},cSave:'حفظ الصورة',cCopy:'نسخ القائمة كنص',
+  cH:'قائمة الأسعار',cSub:'صورة جاهزة لحالة واتساب أو ستوري إنستغرام، تتحدّث مع أسعارك تلقائياً.',cStyles:{cocoa:'كاكاو',pistachio:'فستقي',cream:'كريمي'},cSave:'حفظ الصورة',cZoom:'اضغط على الصورة لتكبيرها',cCopy:'نسخ القائمة كنص',
   cSaveNote:'إن لم يبدأ الحفظ: اضغط مطولاً على الصورة واختر «حفظ الصورة».',cTitle:'قائمة الأسعار',cDefShop:'منتجاتنا',cOrder:'للطلب: راسلنا على الخاص',cDemo:'نسخة تجريبية',
   sLic:'التفعيل',sLicOn:(t,d)=>`ميزارا مفعّلة برمز ينتهي بـ <b class="num">${t}</b> منذ ${d}. شكراً لشرائك.`,sLicDev:'الرمز يعمل على جهازين. لنقله إلى جهاز جديد ألغِ التفعيل من هنا أولاً.',
   sDeact:'إلغاء التفعيل من هذا الجهاز',sLicHelp:'الصق رمز الترخيص الذي وصلك في بريد الشراء. يحتاج التفعيل اتصالاً بالإنترنت مرة واحدة.',
@@ -225,7 +228,7 @@ const TX={
   qH:'Customer quote',qCust:'Customer name',qCustPh:'e.g. Sarah',qAdd:'+ Another product',qDel:'Delivery fee',qDisc:'Discount %',qNote:'Note to customer',qNotePh:'e.g. Delivery Thursday at 5 pm',
   qSub:'Subtotal',qDiscL:'Discount',qDelL:'Delivery',qTotal:'Customer total',qProfit:'Your profit on this order (not shown to the customer)',qMsgH:'Ready-to-send message',qCopy:'Copy message',qPaste:'Paste it into WhatsApp or Instagram.',
   qTitle:c=>`Quote${c?' for '+c:''}`,qTotalTxt:'Total',qDiscTxt:p=>`Discount ${p}%`,qDemo:'(Prepared with the MIZARA demo)',copied:'Copied.',copyManual:'Select the text and copy it manually.',
-  cH:'Price list',cSub:'A ready image for WhatsApp status or Instagram stories that updates with your prices.',cStyles:{cocoa:'Cocoa',pistachio:'Pistachio',cream:'Cream'},cSave:'Save image',cCopy:'Copy as text',
+  cH:'Price list',cSub:'A ready image for WhatsApp status or Instagram stories that updates with your prices.',cStyles:{cocoa:'Cocoa',pistachio:'Pistachio',cream:'Cream'},cZoom:'Tap the image to enlarge',cSave:'Save image',cCopy:'Copy as text',
   cSaveNote:'If saving does not start, long-press the image and choose "Save image".',cTitle:'Price list',cDefShop:'Our menu',cOrder:'To order, send us a message',cDemo:'DEMO',
   sLic:'Activation',sLicOn:(t,d)=>`MIZARA is activated with a key ending in <b class="num">${t}</b> since ${d}. Thank you for your purchase.`,sLicDev:'Your key works on two devices. To move it, deactivate it here first.',
   sDeact:'Deactivate this device',sLicHelp:'Paste the licence key from your purchase email. Activation needs the internet once.',
@@ -544,15 +547,18 @@ let cardStyle='pistachio';
 function viewCard(v){const x=t();
   v.innerHTML=`${demoBar()}<h1>${x.cH}</h1><p class="muted small" style="margin:0">${x.cSub}</p>
     <div class="row"><div class="seg" role="group">${['pistachio','cream','cocoa'].map(k=>`<button data-s="${k}" aria-pressed="${cardStyle===k}">${x.cStyles[k]}</button>`).join('')}</div></div>
-    <canvas id="cv" width="1080" height="1350" aria-label="${x.cH}"></canvas>
+    <canvas id="cv" width="1080" height="1350" aria-label="${x.cH}"></canvas><p class="muted small" style="margin:-4px 0 0;text-align:center">${x.cZoom}</p>
     <div class="row"><button class="btn main" id="dl">${x.cSave}</button><button class="btn" id="cp">${x.cCopy}</button></div>
     <p class="muted small" id="dlNote" style="margin:0"></p>`;
   bindDemo(v);
   v.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{cardStyle=b.dataset.s;viewCard(v)});
+  $('#cv').onclick=()=>{const z=document.createElement('div');z.className='cvzoom';z.innerHTML=`<img alt="${x.cH}" src="${$('#cv').toDataURL('image/png')}">`;z.onclick=()=>z.remove();document.body.appendChild(z)};
   drawCard($('#cv'));if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{const c=$('#cv');if(c)drawCard(c)});
   $('#dl').onclick=()=>{try{const a=document.createElement('a');a.download=(S.lang==='ar'?'قائمة-الأسعار':'price-list')+'.png';a.href=$('#cv').toDataURL('image/png');document.body.appendChild(a);a.click();a.remove();$('#dlNote').textContent=x.cSaveNote}catch(e){$('#dlNote').textContent=x.cSaveNote}};
   $('#cp').onclick=()=>copyText([(S.settings.shop||x.cTitle),...S.products.map(p=>{const r=priceProduct(p,S.lib,S.settings);return isFinite(r.price)?`• ${nm(p)}: ${moneyTxt(r.price)} / ${unitName(p)}`:''}).filter(Boolean)].join('\n'))}
 function drawCard(c){const x=t(),ar=S.lang==='ar';
+  const nItems=S.products.filter(p=>isFinite(priceProduct(p,S.lib,S.settings).price)).length,nCols=Math.max(1,Math.ceil(nItems/8));
+  c.width=nCols<=2?1080:90*2+nCols*500+(nCols-1)*70;c.height=1350;
   const g=c.getContext('2d'),W=c.width,H=c.height;
   const th={cocoa:{bg:'#2B1913',fg:'#F6F0E4',mu:'#C9B9A8',ac:'#D2AE5A',pr:'#B3C47E',ln:'#4A3329'},pistachio:{bg:'#B3C47E',fg:'#2B1913',mu:'#4C5A3A',ac:'#2B1913',pr:'#93344A',ln:'#9AAB66'},cream:{bg:'#F6F0E4',fg:'#2B1913',mu:'#7A6A60',ac:'#93344A',pr:'#93344A',ln:'#E4DACB'}}[cardStyle];
   const fD=ar?'"El Messiri"':'"Reem Kufi"',fB='"IBM Plex Sans Arabic"';
@@ -562,13 +568,18 @@ function drawCard(c){const x=t(),ar=S.lang==='ar';
   g.fillStyle=th.fg;g.font=`700 84px ${fD}, sans-serif`;let title=S.settings.shop||x.cDefShop;while(g.measureText(title).width>W-180&&title.length>3)title=title.slice(0,-2);g.fillText(title,S0,252);
   g.strokeStyle=th.ln;g.lineWidth=3;g.beginPath();g.moveTo(90,300);g.lineTo(W-90,300);g.stroke();
   const items=S.products.map(p=>({p,r:priceProduct(p,S.lib,S.settings)})).filter(o=>isFinite(o.r.price));
-  const n=Math.max(1,items.length),gap=Math.min(150,(H-480)/n);
-  items.forEach((o,i)=>{const y=300+gap*(i+0.75);
-    g.textAlign=ar?'right':'left';g.direction=ar?'rtl':'ltr';g.fillStyle=th.fg;g.font=`700 ${gap<110?40:48}px ${fD}, sans-serif`;
-    let s=nm(o.p);while(g.measureText(s).width>W*0.5&&s.length>3)s=s.slice(0,-2);if(s!==nm(o.p))s+='…';g.fillText(s,S0,y);
-    g.fillStyle=th.mu;g.font=`400 30px ${fB}, sans-serif`;g.fillText(`${x.per} ${unitName(o.p)}`,S0,y+42);
-    g.textAlign=ar?'left':'right';g.fillStyle=th.pr;g.font=`700 52px "Unbounded", ${fB}, sans-serif`;g.direction=ar?'rtl':'ltr';g.fillText(moneyTxt(o.r.price),E0,y+8);
-    if(i<n-1){g.strokeStyle=th.ln;g.lineWidth=1.5;g.beginPath();g.moveTo(90,y+gap*0.55);g.lineTo(W-90,y+gap*0.55);g.stroke()}});
+  const PER=8,n=Math.max(1,items.length),cols=Math.ceil(n/PER),multi=cols>1,GAP=70,top=330,bot=H-150;
+  const cw=(W-180-GAP*(cols-1))/cols,rowH=multi?(bot-top)/PER:Math.min(150,(bot-top)/Math.min(n,PER));
+  const fN=multi?36:46,fU=multi?24:28,fP=multi?34:50;
+  items.forEach((o,i)=>{const col=Math.floor(i/PER),row=i%PER,inCol=Math.min(PER,items.length-col*PER);
+    const cs=ar?W-90-col*(cw+GAP):90+col*(cw+GAP),ce=ar?cs-cw:cs+cw,y=top+rowH*(row+0.62);
+    g.font=`700 ${fP}px "Unbounded", ${fB}, sans-serif`;const pw=g.measureText(moneyTxt(o.r.price)).width;
+    g.direction=ar?'rtl':'ltr';g.textAlign=ar?'right':'left';g.fillStyle=th.fg;g.font=`700 ${fN}px ${fD}, sans-serif`;
+    let s=nm(o.p);while(g.measureText(s+'…').width>(multi?cw:cw-pw-28)&&s.length>3)s=s.slice(0,-1);if(s!==nm(o.p))s+='…';g.fillText(s,cs,y);
+    g.fillStyle=th.mu;g.font=`400 ${fU}px ${fB}, sans-serif`;g.fillText(`${x.per} ${unitName(o.p)}`,cs,y+fU+10);
+    g.textAlign=ar?'left':'right';g.fillStyle=th.pr;g.font=`700 ${fP}px "Unbounded", ${fB}, sans-serif`;g.fillText(moneyTxt(o.r.price),ce,multi?y+fU+12:y+8);
+    if(row<inCol-1){const ly=y+rowH*0.5;g.strokeStyle=th.ln;g.lineWidth=1.5;g.beginPath();g.moveTo(Math.min(cs,ce),ly);g.lineTo(Math.max(cs,ce),ly);g.stroke()}});
+  if(multi)for(let k=1;k<cols;k++){const lx=ar?W-90-k*(cw+GAP)+GAP/2:90+k*(cw+GAP)-GAP/2;g.strokeStyle=th.ln;g.lineWidth=2;g.beginPath();g.moveTo(lx,top+20);g.lineTo(lx,bot-10);g.stroke()}
   g.textAlign=ar?'right':'left';g.direction=ar?'rtl':'ltr';g.fillStyle=th.mu;g.font=`400 30px ${fB}, sans-serif`;g.fillText(x.cOrder,S0,H-80);
   if(!licensed()){g.save();g.translate(W/2,H/2);g.rotate(-0.5);g.textAlign='center';g.fillStyle='rgba(210,174,90,0.30)';g.font=`700 120px ${fD}, sans-serif`;g.fillText(x.cDemo,0,0);g.restore()}}
 
