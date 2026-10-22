@@ -65,6 +65,7 @@ h1{font-size:1.5rem} h2{font-size:1.12rem} h3{font-size:1rem}
 .grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
 .fields{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
 label{display:flex;flex-direction:column;gap:4px;font-size:.82rem;color:var(--muted);min-width:0}
+.fields label>input,.fields label>select{margin-top:auto;min-height:44px}
 input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
 input[inputmode=decimal]{direction:ltr;text-align:start;font-variant-numeric:tabular-nums}
 html[lang="ar"] input[inputmode=decimal]{text-align:right}
