@@ -97,6 +97,7 @@ button{font:inherit;cursor:pointer}
 .kv span:nth-child(odd){color:var(--muted)}
 .star{font-size:.72rem;font-weight:700;color:var(--cocoa);background:var(--pistachio);border-radius:999px;padding:2px 9px}
 .alert{border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--warn) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));font-size:.9rem}
+.more{display:grid;gap:10px}.more-h{font-weight:700;font-size:.95rem}.more-i{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface)}.more-i img{border-radius:11px;flex:none}.more-t{display:grid;gap:2px;flex:1;min-width:0}.more-t span{font-size:.82rem;color:var(--muted);line-height:1.5}.more-i a{flex:none;white-space:nowrap;font-size:.85rem;font-weight:700;text-decoration:none;border-radius:999px;padding:7px 14px;border:1px solid var(--pistachio);color:var(--cocoa)}
 .dbtns{display:flex;gap:8px;flex-wrap:wrap}a.btn.buy{text-decoration:none;display:inline-flex;align-items:center}
 .demo-bar{border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--gold) 16%,var(--surface));border:1px solid color-mix(in srgb,var(--gold) 55%,var(--line));font-size:.9rem;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .editor{display:grid;gap:16px;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:start}
@@ -174,7 +175,7 @@ const logo=(s=38)=>`<svg viewBox="0 0 512 512" width="${s}" height="${s}" aria-h
 const TX={
  ar:{name:'ميزارا',tag:'سعّر ما تصنعه',sig:'منتج من كوليكت',lang:'English',demo:'نسخة تجريبية',lic:'نسخة مفعّلة',
   tabs:['الرئيسية','المكونات','عرض سعر','قائمة الأسعار','الإعدادات'],
-  buyNow:'اشترِ الآن — 9.99 دولار',noKey:'ليس لديك رمز؟',demoBar:'النسخة التجريبية: تعديل المنتج الأول فقط، وعلامة «تجريبية» على الصور والعروض.',activateBtn:'تفعيل برمز الشراء',goSet:'التفعيل ونقل البيانات',
+  buyNow:'اشترِ الآن — 9.99 دولار',moreH:'من كوليكت أيضاً',moreCta:'جرّبه مجاناً',noKey:'ليس لديك رمز؟',demoBar:'النسخة التجريبية: تعديل المنتج الأول فقط، وعلامة «تجريبية» على الصور والعروض.',activateBtn:'تفعيل برمز الشراء',goSet:'التفعيل ونقل البيانات',
   bestEyebrow:'المنتج الأربح لكل ساعة من وقتك',bestSub:(ph,pr,u)=>`يعطيك ${ph} في الساعة فوق أجرك، وسعره ${pr} لكل ${u}.`,
   watch:'انتبه:',watchTail:'افتح المنتج لمعرفة السبب.',yours:'منتجاتك',newP:'+ منتج جديد',onlyLic:'متاح في النسخة المفعّلة',
   unitCost:'تكلفة الوحدة',unitProfit:'ربحك في الوحدة',hourProfit:'ربح الساعة',best:'الأربح',tapEdit:'اضغط للتعديل',viewOnly:'للعرض فقط',
@@ -210,7 +211,7 @@ const TX={
   newProduct:'منتج جديد',copySuffix:' (نسخة)',piece:'قطعة'},
  en:{name:'MIZARA',tag:'Price What You Create',sig:'A product by Collect',lang:'العربية',demo:'Demo',lic:'Activated',
   tabs:['Home','Ingredients','Quote','Price list','Settings'],
-  buyNow:'Buy now — $9.99',noKey:'No key yet?',demoBar:'Demo version: you can edit the first product only, and images and quotes carry a "Demo" mark.',activateBtn:'Activate with your key',goSet:'Activation and moving your data',
+  buyNow:'Buy now — $9.99',moreH:'Also from Collect',moreCta:'Try it free',noKey:'No key yet?',demoBar:'Demo version: you can edit the first product only, and images and quotes carry a "Demo" mark.',activateBtn:'Activate with your key',goSet:'Activation and moving your data',
   bestEyebrow:'Your most profitable product per hour',bestSub:(ph,pr,u)=>`It earns you ${ph} per hour on top of your wage, at ${pr} per ${u}.`,
   watch:'Heads up:',watchTail:'Open the product to see why.',yours:'Your products',newP:'+ New product',onlyLic:'Available in the activated version',
   unitCost:'Unit cost',unitProfit:'Profit per unit',hourProfit:'Profit per hour',best:'Top earner',tapEdit:'Tap to edit',viewOnly:'View only',
@@ -348,6 +349,15 @@ function status(r){const st=t().st;
 
 /* ================= licence ================= */
 let CFG={storeId:'',productId:'',licenseApi:'',buyUrl:''};
+/* ===== من كوليكت أيضاً: القائمة المشتركة https://collecthub.github.io/products.json ===== */
+const MORE_URL="https://collecthub.github.io/products.json",MORE_FALLBACK=[{"id":"mizara","name":{"ar":"ميزارا","en":"MIZARA"},"desc":{"ar":"تسعير الحلويات والمعجنات: التكلفة والسعر والربح لكل منتج.","en":"Pricing for dessert makers: cost, price and profit for every item."},"url":"https://collecthub.github.io/mizara/","icon":"https://collecthub.github.io/mizara/icon-192.png"},{"id":"rasma","name":{"ar":"رسمة","en":"RASMA"},"desc":{"ar":"تسعير المستقلين: سعر الساعة وثلاث باقات وعرض سعر جاهز.","en":"Pricing for freelancers: hourly rate, three packages and a ready quote."},"url":"https://collecthub.github.io/rasma/","icon":"https://collecthub.github.io/rasma/icon-192.png"}];
+let MORE=MORE_FALLBACK;
+async function loadMore(){try{const r=await fetch(MORE_URL,{cache:"no-store"});if(r.ok){const d=await r.json();if(Array.isArray(d.products))MORE=d.products}}catch(e){}}
+function moreHTML(self,lang,title,cta){const esc2=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const list=MORE.filter(p=>p&&p.id!==self&&/^https:\/\//.test(String(p.url||"")));if(!list.length)return "";
+  return `<div class="more-h">${title}</div>`+list.map(p=>{const n=(p.name&&p.name[lang])||p.id,d=(p.desc&&p.desc[lang])||"",ic=/^https:\/\//.test(String(p.icon||""))?`<img src="${esc2(p.icon)}" alt="" width="44" height="44" loading="lazy">`:"";
+    return `<div class="more-i">${ic}<div class="more-t"><b>${esc2(n)}</b><span>${esc2(d)}</span></div><a href="${esc2(p.url)}" target="_blank" rel="noopener">${cta}</a></div>`}).join("")}
+
 async function loadCfg(){try{const r=await fetch('config.json',{cache:'no-store'});if(r.ok)CFG=Object.assign(CFG,await r.json())}catch(e){}}
 function deviceName(){if(!S.dev){S.dev='MZ-'+Math.random().toString(36).slice(2,8).toUpperCase();save()}
   const ua=(navigator.userAgent.match(/iPhone|iPad|Android|Windows|Macintosh|Linux/)||['Device'])[0];return S.dev+' ('+ua+')'}
@@ -612,7 +622,7 @@ function viewSettings(v){const x=t(),s=S.settings,rate=s.hours>0?s.wage/s.hours:
     <section class="card view" style="gap:10px"><h2>${x.sBkH}</h2><p class="small muted" style="margin:0">${x.sBkSub}</p>
       <div class="row"><button class="btn main" id="send" ${licensed()?'':'disabled'}>${x.sSend}</button><button class="btn" id="bk" ${licensed()?'':'disabled'}>${x.sBk}</button>
       <label class="btn" style="flex-direction:row;color:var(--ink);font-size:1rem">${x.sRs}<input type="file" id="rs" accept=".json,application/json" hidden ${licensed()?'':'disabled'}></label>
-      <button class="btn danger" id="reset">${x.sReset}</button></div><div id="confirmBox"></div></section>${sigLine()}`;
+      <button class="btn danger" id="reset">${x.sReset}</button></div><div id="confirmBox"></div></section>${moreHTML('mizara',S.lang,x.moreH,x.moreCta)?`<section class="card view more">${moreHTML('mizara',S.lang,x.moreH,x.moreCta)}</section>`:''}${sigLine()}`;
   const de=$('#deact');if(de)de.onclick=async()=>{de.disabled=true;const err=await deactivate();de.disabled=false;if(err)$('#actMsg').textContent=err;else{toast(x.deactDone);render()}};
   const act=$('#act');if(act)act.onclick=async()=>{act.disabled=true;const err=await activate($('#key').value);act.disabled=false;if(err)$('#actMsg').textContent=err;else{toast(x.actDone);render()}};
   const refresh=()=>{const f2=s.fixed.reduce((a,f)=>a+(+f.a||0),0);$('#ohLine').innerHTML=x.sFixLine(money(f2),money(f2/Math.max(1,s.batches)));$('#rateLine').innerHTML=`${x.sRate} ${money(s.hours>0?s.wage/s.hours:0)}`};
@@ -637,7 +647,7 @@ function viewSettings(v){const x=t(),s=S.settings,rate=s.hours>0?s.wage/s.hours:
     $('#yes').onclick=()=>{const keep={lic:S.lic,dev:S.dev,lang:S.lang};S=Object.assign(starter(),keep);save();toast(x.resetDone);go('home')};$('#no').onclick=()=>$('#confirmBox').innerHTML=''}}
 
 /* ================= boot ================= */
-render();recheck(false);loadCfg().then(()=>{if(buyOk()&&!licensed())render()});
+render();recheck(false);loadCfg().then(()=>{if(buyOk()&&!licensed())render()});loadMore().then(()=>{if(route&&route.v==='set')render()});
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.(ai|site)|claudeusercontent/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{})}
 })();
 </script>
