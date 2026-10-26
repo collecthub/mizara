@@ -97,6 +97,7 @@ button{font:inherit;cursor:pointer}
 .kv span:nth-child(odd){color:var(--muted)}
 .star{font-size:.72rem;font-weight:700;color:var(--cocoa);background:var(--pistachio);border-radius:999px;padding:2px 9px}
 .alert{border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--warn) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));font-size:.9rem}
+.dbtns{display:flex;gap:8px;flex-wrap:wrap}a.btn.buy{text-decoration:none;display:inline-flex;align-items:center}
 .demo-bar{border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--gold) 16%,var(--surface));border:1px solid color-mix(in srgb,var(--gold) 55%,var(--line));font-size:.9rem;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .editor{display:grid;gap:16px;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);align-items:start}
 @media (max-width:820px){.editor{grid-template-columns:1fr}}
@@ -173,7 +174,7 @@ const logo=(s=38)=>`<svg viewBox="0 0 512 512" width="${s}" height="${s}" aria-h
 const TX={
  ar:{name:'ميزارا',tag:'سعّر ما تصنعه',sig:'منتج من كوليكت',lang:'English',demo:'نسخة تجريبية',lic:'نسخة مفعّلة',
   tabs:['الرئيسية','المكونات','عرض سعر','قائمة الأسعار','الإعدادات'],
-  demoBar:'النسخة التجريبية: تعديل المنتج الأول فقط، وعلامة «تجريبية» على الصور والعروض.',activateBtn:'تفعيل برمز الشراء',goSet:'التفعيل ونقل البيانات',
+  buyNow:'اشترِ الآن — 9.99 دولار',noKey:'ليس لديك رمز؟',demoBar:'النسخة التجريبية: تعديل المنتج الأول فقط، وعلامة «تجريبية» على الصور والعروض.',activateBtn:'تفعيل برمز الشراء',goSet:'التفعيل ونقل البيانات',
   bestEyebrow:'المنتج الأربح لكل ساعة من وقتك',bestSub:(ph,pr,u)=>`يعطيك ${ph} في الساعة فوق أجرك، وسعره ${pr} لكل ${u}.`,
   watch:'انتبه:',watchTail:'افتح المنتج لمعرفة السبب.',yours:'منتجاتك',newP:'+ منتج جديد',onlyLic:'متاح في النسخة المفعّلة',
   unitCost:'تكلفة الوحدة',unitProfit:'ربحك في الوحدة',hourProfit:'ربح الساعة',best:'الأربح',tapEdit:'اضغط للتعديل',viewOnly:'للعرض فقط',
@@ -209,7 +210,7 @@ const TX={
   newProduct:'منتج جديد',copySuffix:' (نسخة)',piece:'قطعة'},
  en:{name:'MIZARA',tag:'Price What You Create',sig:'A product by Collect',lang:'العربية',demo:'Demo',lic:'Activated',
   tabs:['Home','Ingredients','Quote','Price list','Settings'],
-  demoBar:'Demo version: you can edit the first product only, and images and quotes carry a "Demo" mark.',activateBtn:'Activate with your key',goSet:'Activation and moving your data',
+  buyNow:'Buy now — $9.99',noKey:'No key yet?',demoBar:'Demo version: you can edit the first product only, and images and quotes carry a "Demo" mark.',activateBtn:'Activate with your key',goSet:'Activation and moving your data',
   bestEyebrow:'Your most profitable product per hour',bestSub:(ph,pr,u)=>`It earns you ${ph} per hour on top of your wage, at ${pr} per ${u}.`,
   watch:'Heads up:',watchTail:'Open the product to see why.',yours:'Your products',newP:'+ New product',onlyLic:'Available in the activated version',
   unitCost:'Unit cost',unitProfit:'Profit per unit',hourProfit:'Profit per hour',best:'Top earner',tapEdit:'Tap to edit',viewOnly:'View only',
@@ -346,7 +347,7 @@ function status(r){const st=t().st;
   if(r.realM>=S.settings.alert)return{c:'ok',t:st.ok};if(r.realM>0)return{c:'lo',t:st.lo};return{c:'bad',t:st.bad}}
 
 /* ================= licence ================= */
-let CFG={storeId:'',productId:'',licenseApi:''};
+let CFG={storeId:'',productId:'',licenseApi:'',buyUrl:''};
 async function loadCfg(){try{const r=await fetch('config.json',{cache:'no-store'});if(r.ok)CFG=Object.assign(CFG,await r.json())}catch(e){}}
 function deviceName(){if(!S.dev){S.dev='MZ-'+Math.random().toString(36).slice(2,8).toUpperCase();save()}
   const ua=(navigator.userAgent.match(/iPhone|iPad|Android|Windows|Macintosh|Linux/)||['Device'])[0];return S.dev+' ('+ua+')'}
@@ -397,7 +398,9 @@ function renderShell(){const x=t();
 function render(){applyLang();renderShell();
   ({home:viewHome,product:viewProduct,lib:viewLib,quote:viewQuote,card:viewCard,set:viewSettings}[route.v]||viewHome)($('#view'))}
 $('#langBtn').onclick=()=>{S.lang=S.lang==='ar'?'en':'ar';save();render()};
-const demoBar=()=>licensed()?'':`<div class="demo-bar"><span>${t().demoBar}</span><button class="btn main" data-act="goLic">${t().activateBtn}</button></div>`;
+const buyOk=()=>/^https:\/\//.test(String(CFG.buyUrl||'').trim());
+const buyBtn=()=>buyOk()?`<a class="btn main buy" href="${esc(CFG.buyUrl.trim())}" target="_blank" rel="noopener">${t().buyNow}</a>`:'';
+const demoBar=()=>licensed()?'':`<div class="demo-bar"><span>${t().demoBar}</span><span class="dbtns">${buyBtn()}<button class="btn${buyOk()?'':' main'}" data-act="goLic">${t().activateBtn}</button></span></div>`;
 function bindDemo(v){const b=v.querySelector('[data-act="goLic"]');if(b)b.onclick=()=>go('set')}
 const sigLine=()=>`<p class="sig"><b>${t().name}</b> · ${t().sig}<br><a data-act="goSet">${t().goSet}</a></p>`;
 document.addEventListener('click',e=>{if(e.target.closest('#licBadge,[data-act="goSet"]'))go('set')});
@@ -589,7 +592,7 @@ function viewSettings(v){const x=t(),s=S.settings,rate=s.hours>0?s.wage/s.hours:
   v.innerHTML=`<section class="card view" style="gap:12px"><h2>${x.sLic}</h2>
       ${licensed()?`<p style="margin:0">${x.sLicOn(esc(S.lic.tail),esc(S.lic.at))}</p><p class="small muted" style="margin:0">${x.sLicDev}</p>
         <div class="row"><button class="btn" id="deact">${x.sDeact}</button></div><p class="small" id="actMsg" style="margin:0;color:var(--bad)"></p>`:
-      `<p class="small muted" style="margin:0">${x.sLicHelp}</p>
+      `<p class="small muted" style="margin:0">${x.sLicHelp}</p>${buyOk()?`<p class="small" style="margin:0">${x.noKey} <a href="${esc(CFG.buyUrl.trim())}" target="_blank" rel="noopener" style="font-weight:700;color:var(--raspberry)">${x.buyNow}</a></p>`:''}
        <div class="row"><input id="key" placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" autocomplete="off" style="flex:1;min-width:200px;direction:ltr;text-align:left"><button class="btn main" id="act">${x.activate}</button></div>
        <p class="small" id="actMsg" style="margin:0;color:var(--bad)"></p>`}</section>
     <section class="card view" style="gap:12px"><h2>${x.sProj}</h2><div class="fields">
@@ -634,7 +637,7 @@ function viewSettings(v){const x=t(),s=S.settings,rate=s.hours>0?s.wage/s.hours:
     $('#yes').onclick=()=>{const keep={lic:S.lic,dev:S.dev,lang:S.lang};S=Object.assign(starter(),keep);save();toast(x.resetDone);go('home')};$('#no').onclick=()=>$('#confirmBox').innerHTML=''}}
 
 /* ================= boot ================= */
-render();recheck(false);
+render();recheck(false);loadCfg().then(()=>{if(buyOk()&&!licensed())render()});
 if('serviceWorker' in navigator&&location.protocol==='https:'&&!/claude\.(ai|site)|claudeusercontent/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{})}
 })();
 </script>
