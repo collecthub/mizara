@@ -398,7 +398,7 @@ let route={v:'home',id:null};
 function go(v,id){route={v,id:id||null};render();window.scrollTo(0,0)}
 function applyLang(){document.documentElement.lang=S.lang;document.documentElement.dir=S.lang==='ar'?'rtl':'ltr';document.title=S.lang==='ar'?'ميزارا':'MIZARA'}
 function renderShell(){const x=t();
-  $('#brand').innerHTML=`${logo(38)}<div style="min-width:0"><div class="nm">${x.name}</div><span class="tg">${esc(S.settings.shop||x.tag)}</span></div>`;
+  $('#brand').innerHTML=`<img src="mizara-logo-mark.png" width="38" height="38" style="flex:none" alt="" aria-hidden="true"><div style="min-width:0"><div class="nm">${x.name}</div><span class="tg">${esc(S.settings.shop||x.tag)}</span></div>`;
   $('#langBtn').textContent=x.lang;
   const b=$('#licBadge');if(licensed()){b.className='badge lic';b.textContent=x.lic}else{b.className='badge demo';b.textContent=x.demo}
   const cv=route.v==='product'?'home':route.v;
