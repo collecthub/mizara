@@ -108,7 +108,9 @@ button{font:inherit;cursor:pointer}
 .pill.lo{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
 .pill.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
 .hero{background:var(--pistachio);color:var(--cocoa);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden}
-.hero::after{content:"";position:absolute;inset:auto -40px -60px auto;width:180px;height:180px;border-radius:50%;background:var(--cream);opacity:.35}
+/* decorative circle: behind the text, on the side opposite to where the text starts (left in Arabic, right in English) */
+.hero>*{position:relative;z-index:1}
+.hero::after{content:"";position:absolute;z-index:0;inset-block-end:-60px;inset-inline-end:-40px;width:180px;height:180px;border-radius:50%;background:var(--cream);opacity:.35}
 .hero .eyebrow{color:var(--cocoa);opacity:.75;font-size:.85rem;font-weight:600}
 .hero .big{font-size:1.6rem;line-height:1.2}
 .hero .sub{opacity:.85;font-size:.9rem}
