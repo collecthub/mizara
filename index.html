@@ -785,7 +785,7 @@ async function loadMore(box){if(!box)return;
   const x=t();
   box.innerHTML=`<h2>${x.more}</h2>`+items.map(p=>`<div class="more-item">${https(p.icon)?`<img src="${esc(p.icon)}" alt="" width="48" height="48" loading="lazy">`:'<span></span>'}
     <div style="min-width:0"><b>${esc(txt(p.name))}</b><span class="small muted">${esc(txt(p.desc))}</span></div>
-    <a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${x.tryFree}</a></div>`).join('');
+    <a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${p.free===true?(S.lang==='ar'?'مجاني':'Free'):x.tryFree}</a></div>`).join('');
   box.querySelectorAll('img').forEach(im=>im.onerror=()=>{im.replaceWith(document.createElement('span'))});
   box.hidden=false}
 
